@@ -1,17 +1,26 @@
-const pokeApi = {}
 
-pokeApi.getPokemonDetail = (pokemon) => {
-    return fetch(pokemon.url).then((response) => response.json())
+function convertPokemonToLi(pokemon) {
+    return `
+        <ol class="pokemons"  id="pokemonList">
+            <li class="pokemon">
+                <span class="number">#${pokemon.number}</span>
+                <span class="name">${pokemon.name}</span>
+                <div class="detail">
+                    <ol class="types">
+                        ${pokemon.types.map((type) => `<li class="type">${type}</li>`).join('')}
+                    </ol>
+                    <img src="${pokemon.photo}"
+                        alt="${pokemon.name}">
+                </div>
+            </li>
+        </ol>
+    `
 }
 
+const pokemonList = document.getElementById('pokemonList')
 
-pokeApi.getPokemons = (offset = 0, limit = 5) => {
-    const url = `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`
+pokeApi.getPokemons().then((pokemons = []) => {
+    const newHtml = pokemons.map(convertPokemonToLi).join('')
+    pokemonList.innerHTML = newHtml
+})
 
-    return fetch(url)
-        .then((response) => response.json())
-        .then((jsonBody) => jsonBody.results)
-        .then((pokemons) => pokemons.map(pokeApi.getPokemonDetail))
-        .then((detailRequests) => Promise.all(detailRequests))
-        .then((pokemonsDetails) => pokemonsDetails)
-}
